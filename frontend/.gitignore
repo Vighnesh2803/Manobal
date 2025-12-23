@@ -1,0 +1,33 @@
+# Gitignore for Manobal full-stack project
+
+# Node.js dependencies
+/frontend/node_modules
+/frontend/dist/
+/frontend/dist-ssr/
+/frontend/*.local
+
+# Python dependencies
+/backend/venv/
+/backend/__pycache__/
+*.pyc
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Private Keys
+# This is for security. Never commit a file with your API keys.
+.env
