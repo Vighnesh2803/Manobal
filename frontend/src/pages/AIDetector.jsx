@@ -1,14 +1,11 @@
-// file: frontend/src/pages/AIDetector.jsx (AI Analysis/Data Visualization Page)
+// file: frontend/src/pages/AIDetector.jsx (PRODUCTION READY)
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMoods } from '../api';
 import moment from 'moment';
-import { Line } from 'react-chartjs-2'; // Requires chart.js and react-chartjs-2 libraries!
+import { Line } from 'react-chartjs-2';
 
-// --- IMPORTANT: Chart.js Setup ---
-// Make sure you have installed these packages:
-// npm install chart.js react-chartjs-2
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -29,8 +26,6 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-// ----------------------------------
-
 
 const AIDetector = () => {
     const navigate = useNavigate();
@@ -40,7 +35,6 @@ const AIDetector = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- Data Fetching ---
     useEffect(() => {
         if (!userId || isNaN(userId)) {
             navigate('/login');
@@ -51,20 +45,18 @@ const AIDetector = () => {
             setIsLoading(true);
             setError(null);
             try {
-                // Fetch historical mood data using the moods endpoint
+                // SYNCED: Calls the backend @app.get("/moods/{user_id}")
                 const response = await getMoods(userId);
                 
-                // Sort by date (oldest first for chart rendering)
+                // Sort oldest to newest for chronological chart display
                 const sortedEntries = response.mood_entries.sort((a, b) => 
                     new Date(a.log_timestamp) - new Date(b.log_timestamp)
                 );
 
                 setMoodEntries(sortedEntries);
-
             } catch (err) {
-                console.error("Mood Data Fetch Error:", err);
-                // NOTE: This will capture the 'Unknown column log_timestamp' database error
-                setError(err.detail || 'Failed to load historical mood data. (Check DB column names)');
+                console.error("Analysis Fetch Error:", err);
+                setError(err.response?.data?.detail || 'Failed to sync with Manobal Analysis server.');
             } finally {
                 setIsLoading(false);
             }
@@ -73,18 +65,20 @@ const AIDetector = () => {
         fetchMoodData();
     }, [userId, navigate]);
 
-    // --- Chart Data Preparation ---
+    // Chart Configuration
     const chartData = {
-        labels: moodEntries.map(entry => moment(entry.log_timestamp).format('MMM D, YY')),
+        labels: moodEntries.map(entry => moment(entry.log_timestamp).format('MMM D')),
         datasets: [
             {
-                label: 'Mood Score (1-10)',
+                label: 'Mood Intensity',
                 data: moodEntries.map(entry => entry.mood_score),
-                borderColor: 'rgb(251, 191, 36)', // Amber 400
-                backgroundColor: 'rgba(251, 191, 36, 0.5)',
-                tension: 0.3,
-                pointRadius: 5,
-                pointBackgroundColor: 'rgb(79, 70, 229)', // Indigo
+                borderColor: '#F59E0B', // Amber 500
+                backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                tension: 0.4,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#6366F1', // Indigo 500
+                fill: true,
             },
         ],
     };
@@ -92,35 +86,16 @@ const AIDetector = () => {
     const chartOptions = {
         responsive: true,
         plugins: {
-            legend: {
-                position: 'top',
-                labels: {
-                    color: 'white',
-                }
-            },
-            title: {
-                display: true,
-                text: 'Mood Trends Over Time',
-                color: 'white',
-                font: {
-                    size: 18,
-                }
-            },
+            legend: { display: false },
             tooltip: {
+                backgroundColor: '#1E293B',
+                padding: 12,
                 callbacks: {
                     label: function(context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': ';
-                        }
-                        if (context.parsed.y !== null) {
-                            label += context.parsed.y;
-                        }
-                        // Add the actual analysis text to the tooltip
                         const entry = moodEntries[context.dataIndex];
                         return [
-                            label, 
-                            `Analysis: ${entry.ai_analysis_text || 'No AI analysis provided'}`
+                            ` Mood Score: ${entry.mood_score}/10`,
+                            ` AI Analysis: ${entry.ai_analysis_text || 'No data'}`
                         ];
                     }
                 }
@@ -128,98 +103,84 @@ const AIDetector = () => {
         },
         scales: {
             y: {
-                min: 1,
+                min: 0,
                 max: 10,
-                ticks: {
-                    color: 'gray',
-                    stepSize: 1,
-                },
-                grid: {
-                    color: 'rgba(255, 255, 255, 0.1)',
-                }
+                grid: { color: '#334155' },
+                ticks: { color: '#94A3B8' }
             },
             x: {
-                ticks: {
-                    color: 'gray',
-                },
-                grid: {
-                    color: 'rgba(255, 255, 255, 0.1)',
-                }
+                grid: { display: false },
+                ticks: { color: '#94A3B8' }
             }
         }
     };
 
-
-    // --- Render Content ---
-    if (isLoading) {
-        return <div className="text-center py-10 text-xl">Loading Analysis...</div>;
-    }
-
-    if (error) {
-        return (
-            <div className="text-center py-10">
-                <h2 className="text-2xl font-bold text-red-500">Error Loading Data</h2>
-                <p className="text-red-400 mt-2">{error}</p>
-                <p className="text-gray-400 mt-4">
-                    Please ensure the backend is running and the database column `log_timestamp` (or its equivalent) is correct in `main.py`.
-                </p>
-            </div>
-        );
-    }
-    
-    if (moodEntries.length === 0) {
-        return (
-            <div className="text-center py-10">
-                <h2 className="text-2xl font-bold text-amber-400">No Mood Entries Yet</h2>
-                <p className="text-gray-400 mt-2">Start logging your mood to view trends here!</p>
-                <button 
-                    onClick={() => navigate('/moodlog')}
-                    className="mt-4 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-                >
-                    Go to Mood Log
-                </button>
-            </div>
-        );
-    }
-
+    if (isLoading) return <div className="h-screen bg-gray-950 flex items-center justify-center text-amber-400 animate-pulse">Analyzing Trends...</div>;
 
     return (
-        <div className="p-8 bg-gray-950 text-white">
-            <h1 className="text-4xl font-extrabold mb-8 text-center text-amber-400">
-                AI Mood Trend Analysis 📈
-            </h1>
+        <div className="min-h-screen bg-gray-950 text-white p-6 lg:p-12">
+            <div className="max-w-6xl mx-auto">
+                <header className="mb-12 text-center">
+                    <h1 className="text-4xl font-black text-amber-500 tracking-tight uppercase mb-2">Mood Intelligence Analysis</h1>
+                    <p className="text-slate-400">Deep-dive into your mental well-being trends powered by Manobal AI.</p>
+                </header>
 
-            {/* --- 1. Line Chart Visualization --- */}
-            <div className="max-w-4xl mx-auto bg-slate-800 p-6 rounded-xl shadow-2xl mb-12 border border-indigo-600">
-                <Line data={chartData} options={chartOptions} />
-            </div>
-            
-            {/* --- 2. Raw Data List --- */}
-            <h2 className="text-3xl font-bold mb-6 text-indigo-400 border-b border-gray-700 pb-2">
-                Recent Entries & AI Feedback
-            </h2>
-            <div className="space-y-4">
-                {moodEntries.slice().reverse().map((entry) => (
-                    <div key={entry.entry_id} className="bg-slate-800 p-5 rounded-lg shadow-md border border-slate-700">
-                        <div className="flex justify-between items-start mb-2">
-                            <span className="text-gray-400 text-sm">
-                                {moment(entry.log_timestamp).format('MMMM Do YYYY, h:mm a')}
-                            </span>
-                            <span className={`text-xl font-extrabold ${entry.mood_score < 4 ? 'text-red-400' : entry.mood_score < 7 ? 'text-yellow-400' : 'text-green-400'}`}>
-                                Score: {entry.mood_score}/10
-                            </span>
-                        </div>
-                        <p className="text-lg italic text-gray-300">
-                            "{entry.journal_entry}"
-                        </p>
-                        <div className="mt-3 pt-3 border-t border-slate-700">
-                            <p className="font-semibold text-amber-400">AI Analysis:</p>
-                            <p className="text-sm text-gray-200">
-                                {entry.ai_analysis_text || "No AI analysis available for this entry."}
-                            </p>
-                        </div>
+                {error ? (
+                    <div className="bg-red-900/20 border border-red-500 text-red-400 p-6 rounded-2xl text-center">
+                        {error}
                     </div>
-                ))}
+                ) : moodEntries.length === 0 ? (
+                    <div className="text-center py-20 bg-slate-900 rounded-3xl border border-slate-800">
+                        <h2 className="text-2xl font-bold mb-4">Insufficient Data</h2>
+                        <p className="text-slate-400 mb-6">Log your first mood entry to see the AI analysis in action.</p>
+                        <button onClick={() => navigate('/moodlog')} className="bg-amber-500 text-black px-8 py-3 rounded-full font-bold uppercase tracking-wide">Start Logging</button>
+                    </div>
+                ) : (
+                    <>
+                        {/* Data Visualization Section */}
+                        <section className="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl mb-12">
+                            <h2 className="text-xl font-bold mb-8 flex items-center">
+                                <span className="w-2 h-8 bg-amber-500 mr-4 rounded-full"></span>
+                                Emotional Trajectory
+                            </h2>
+                            <div className="h-80 lg:h-96">
+                                <Line data={chartData} options={chartOptions} />
+                            </div>
+                        </section>
+
+                        {/* Analysis List Section */}
+                        <section>
+                            <h2 className="text-xl font-bold mb-8 flex items-center">
+                                <span className="w-2 h-8 bg-indigo-500 mr-4 rounded-full"></span>
+                                Historical AI Feedback
+                            </h2>
+                            <div className="grid gap-6 md:grid-cols-2">
+                                {moodEntries.slice().reverse().map((entry) => (
+                                    <div key={entry.entry_id} className="bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-indigo-500 transition-colors">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                                {moment(entry.log_timestamp).format('MMMM D, YYYY')}
+                                            </span>
+                                            <div className={`px-3 py-1 rounded-full text-xs font-black ${
+                                                entry.mood_score >= 7 ? 'bg-green-500/10 text-green-400' : 
+                                                entry.mood_score >= 4 ? 'bg-amber-500/10 text-amber-400' : 'bg-red-500/10 text-red-400'
+                                            }`}>
+                                                SCORE: {entry.mood_score}/10
+                                            </div>
+                                        </div>
+                                        <p className="text-slate-200 italic mb-4">"{entry.journal_entry}"</p>
+                                        <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
+                                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-2 block">AI Summary</span>
+                                            <p className="text-sm text-slate-400 leading-relaxed">
+                                                {entry.ai_analysis_text || "Analysis pending..."}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    </>
+                )}
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
-// file: frontend/src/App.jsx (FINAL AND CORRECTED)
+// file: frontend/src/App.jsx
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom'; 
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; 
 
 // --- Component Imports ---
 import Login from './pages/Login.jsx';
@@ -16,14 +16,19 @@ import Streaks from './pages/Streaks.jsx';
 import MoodTracker from './pages/MoodTracker.jsx'; 
 import MoodLog from './pages/MoodLog.jsx';         
 import AIDetector from './pages/AIDetector.jsx';   
-import ShareData from './pages/ShareData.jsx';     // Trusted Viewer Page
+import ShareData from './pages/ShareData.jsx';     
+
+// NEW: Relaxation, Breathing & Counselor Ecosystem
+import RelaxGame from './pages/RelaxGame.jsx'; 
+import BreathingZen from './pages/BreathingZen.jsx'; 
+import Counselors from './pages/Counselors.jsx'; 
+import CounselorReg from './pages/CounselorReg.jsx'; // Naya Counselor Registration page
 
 // Structural Components
 import PrivateRoute from './pages/PrivateRoute.jsx'; 
-import Layout from './pages/Layout.jsx';      // <-- IMPORTANT: Imported from components/
+import Layout from './pages/Layout.jsx'; 
 
 import './index.css';
-
 
 function App() {
     return (
@@ -34,20 +39,29 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<LandingPage />} />
                 
+                {/* Public Counselor Registration (Self-Onboarding) */}
+                <Route path="/counselor-register" element={<CounselorReg />} />
+                
                 {/* --- Private/Protected Routes (NESTED STRUCTURE) --- */}
-                {/* Parent Route runs the Auth Check (PrivateRoute) and provides the Navbar/Layout. */}
                 <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
                     
-                    {/* These child routes render inside the <Outlet> of Layout.jsx */}
+                    {/* General Dashboard & Support */}
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/chatbot" element={<Chatbot />} />
                     <Route path="/helpline" element={<Helpline />} />
                     <Route path="/streaks" element={<Streaks />} />
                     
+                    {/* Mind Relaxation & Breathing */}
+                    <Route path="/relax" element={<RelaxGame />} /> 
+                    <Route path="/breathing" element={<BreathingZen />} /> 
+
+                    {/* FEATURE: Professional Counselor List (User View) */}
+                    <Route path="/counselors" element={<Counselors />} /> 
+                    
                     {/* Data Logging & Analysis */}
                     <Route path="/moods" element={<MoodTracker />} />     
                     <Route path="/moodlog" element={<MoodLog />} />       
-                    <Route path="/aid" element={<AIDetector />} />        
+                    <Route path="/aid" element={<AIDetector />} />         
                     
                     {/* Trusted Viewer Access Route */}
                     <Route path="/access" element={<ShareData />} /> 
