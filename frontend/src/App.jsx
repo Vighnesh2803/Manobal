@@ -12,8 +12,7 @@ import LandingPage from './pages/LandingPage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Chatbot from './pages/chatbot.jsx';
 import Helpline from './pages/Helpline.jsx';
-import Streaks from './pages/Streaks.jsx';
-import MoodTracker from './pages/MoodTracker.jsx'; 
+import Streaks from './pages/Streaks.jsx'; 
 import MoodLog from './pages/MoodLog.jsx';         
 import AIDetector from './pages/AIDetector.jsx';   
 import ShareData from './pages/ShareData.jsx';     
@@ -22,7 +21,7 @@ import ShareData from './pages/ShareData.jsx';
 import RelaxGame from './pages/RelaxGame.jsx'; 
 import BreathingZen from './pages/BreathingZen.jsx'; 
 import Counselors from './pages/Counselors.jsx'; 
-import CounselorReg from './pages/CounselorReg.jsx'; // Naya Counselor Registration page
+import CounselorReg from './pages/CounselorReg.jsx'; 
 
 // Structural Components
 import PrivateRoute from './pages/PrivateRoute.jsx'; 
@@ -58,8 +57,7 @@ function App() {
                     {/* FEATURE: Professional Counselor List (User View) */}
                     <Route path="/counselors" element={<Counselors />} /> 
                     
-                    {/* Data Logging & Analysis */}
-                    <Route path="/moods" element={<MoodTracker />} />     
+                    {/* Data Logging & Analysis */}  
                     <Route path="/moodlog" element={<MoodLog />} />       
                     <Route path="/aid" element={<AIDetector />} />         
                     
