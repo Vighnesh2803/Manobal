@@ -1,5 +1,4 @@
 // file: frontend/src/App.jsx
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; 
 
@@ -8,7 +7,7 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 
-// Protected Pages
+// Protected Pages (Ensure 'export default' in each file)
 import Dashboard from './pages/Dashboard.jsx';
 import Chatbot from './pages/chatbot.jsx';
 import Helpline from './pages/Helpline.jsx';
@@ -17,7 +16,7 @@ import MoodLog from './pages/MoodLog.jsx';
 import AIDetector from './pages/AIDetector.jsx';   
 import ShareData from './pages/ShareData.jsx';     
 
-// NEW: Relaxation, Breathing & Counselor Ecosystem
+// Relaxation, Breathing & Counselor Ecosystem
 import RelaxGame from './pages/RelaxGame.jsx'; 
 import BreathingZen from './pages/BreathingZen.jsx'; 
 import Counselors from './pages/Counselors.jsx'; 
@@ -38,7 +37,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<LandingPage />} />
                 
-                {/* Public Counselor Registration (Self-Onboarding) */}
+                {/* Public Counselor Registration */}
                 <Route path="/counselor-register" element={<CounselorReg />} />
                 
                 {/* --- Private/Protected Routes (NESTED STRUCTURE) --- */}
@@ -54,7 +53,7 @@ function App() {
                     <Route path="/relax" element={<RelaxGame />} /> 
                     <Route path="/breathing" element={<BreathingZen />} /> 
 
-                    {/* FEATURE: Professional Counselor List (User View) */}
+                    {/* Counselor List (User View) */}
                     <Route path="/counselors" element={<Counselors />} /> 
                     
                     {/* Data Logging & Analysis */}  
@@ -67,6 +66,9 @@ function App() {
                     {/* Fallback for unmatched protected paths */}
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Route>
+
+                {/* Final Catch-all Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>
     );

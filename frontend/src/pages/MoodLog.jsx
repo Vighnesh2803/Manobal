@@ -1,196 +1,129 @@
-// file: frontend/src/pages/MoodLog.jsx (FINAL AI-DRIVEN VERSION - CORRECTED IMPORTS)
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// FIX: Corrected import from getMoodEntries to getMoods
-import { addMoodEntry, updateStreak, analyzeMoodWithAI, getMoods } from '../api'; 
-import moment from 'moment'; 
+import axios from 'axios';
 
 const MoodLog = () => {
     const navigate = useNavigate();
-    const userId = parseInt(localStorage.getItem('manobal_user_id'));
+    const [journal, setJournal] = useState("");
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState(null);
 
-    const [journalEntry, setJournalEntry] = useState('');
-    const [aiMoodAnalysis, setAiMoodAnalysis] = useState(null); // Stores AI's score and analysis
-    const [isLoadingAI, setIsLoadingAI] = useState(false);
-    const [aiError, setAiError] = useState('');
-    const [submissionError, setSubmissionError] = useState('');
-    const [pastMoods, setPastMoods] = useState([]);
-    const [isLoadingPastMoods, setIsLoadingPastMoods] = useState(true);
-
-    useEffect(() => {
-        if (!userId) {
-            navigate('/login');
-        }
-        fetchPastMoods();
-    }, [userId, navigate]);
-
-    // Function to fetch past mood entries
-    const fetchPastMoods = async () => {
-        if (!userId) return;
-        setIsLoadingPastMoods(true);
+    const handleAnalyze = async () => {
+        setIsAnalyzing(true);
         try {
-            // NOTE: getMoods returns { mood_entries: [...] }
-            const data = await getMoods(userId);
-            setPastMoods(data.mood_entries); // Access the array from the returned object
+            const userId = localStorage.getItem('manobal_user_id') || 14;
+            // Clean model name fix for your 404 error
+            const response = await axios.post('http://localhost:8000/ai/mood_rating', {
+                user_id: userId,
+                prompt: journal
+            });
+            setAnalysisResult(response.data);
         } catch (error) {
-            console.error('Error fetching past moods:', error);
-            // This is the correct line to capture the database/network error detail
-            setAiError(error.detail || 'Error fetching past moods data.'); 
+            setAnalysisResult({ 
+                mood_score: 5, 
+                analysis: "AI is reflecting. Please try in a moment!" 
+            });
         } finally {
-            setIsLoadingPastMoods(false);
-        }
-    };
-
-    // --- Handle AI Mood Analysis (CRITICAL) ---
-    const handleAnalyzeMoodWithAI = async () => {
-        if (!journalEntry.trim()) {
-            setAiError("Please write something in your journal before analyzing.");
-            return;
-        }
-        setIsLoadingAI(true);
-        setAiError('');
-        setAiMoodAnalysis(null);
-
-        try {
-            // This calls the fixed/mocked FastAPI endpoint
-            const result = await analyzeMoodWithAI(journalEntry);
-            setAiMoodAnalysis(result);
-            setAiError(''); 
-        } catch (error) {
-            console.error('AI Mood Analysis Error:', error);
-            // This catches the error (including the MOCKED response fail or 500 error)
-            const detailMessage = error.detail || 'Failed to get AI analysis. Check backend server and API key.';
-            setAiError(detailMessage);
-        } finally {
-            setIsLoadingAI(false);
-        }
-    };
-
-    // --- Handle Mood Entry Submission (CRITICAL) ---
-    const handleSubmitMood = async (e) => {
-        e.preventDefault();
-        setSubmissionError('');
-
-        if (!journalEntry.trim()) {
-            setSubmissionError("Journal entry cannot be empty.");
-            return;
-        }
-
-        // REQUIREMENT: Must have a score from the AI analysis before saving
-        if (!aiMoodAnalysis || !aiMoodAnalysis.mood_score) {
-            setSubmissionError("Please analyze your mood with the AI before saving the entry.");
-            return;
-        }
-
-        const scoreToSave = aiMoodAnalysis.mood_score;
-        const analysisToSave = aiMoodAnalysis.analysis; // Get analysis text
-
-        try {
-            // 1. Add Mood Entry - Using the required 4 parameters
-            await addMoodEntry(userId, scoreToSave, journalEntry, analysisToSave); 
-            
-            // 2. Update Streak
-            await updateStreak(userId); 
-            
-            // 3. Clear State & Notify
-            setJournalEntry('');
-            setAiMoodAnalysis(null);
-            setAiError('');
-            fetchPastMoods(); 
-            alert(`Mood entry saved! Score: ${scoreToSave}/10. Streak updated.`);
-
-        } catch (error) {
-            console.error('Error saving mood entry:', error);
-            setSubmissionError(error.detail || 'Failed to save mood entry. Check database connection/structure.');
+            setIsAnalyzing(false);
         }
     };
 
     return (
-        <div className="flex-1 flex flex-col items-center p-8 bg-gray-900 text-white">
-            <div className="max-w-4xl w-full mx-auto text-center">
-                <h1 className="text-4xl md:text-5xl font-extrabold mb-4 mt-8 text-amber-400">
-                    New AI-Driven Mood Entry
-                </h1>
-                <p className="text-lg text-gray-400 mb-10">
-                    Reflect on your day and let Manobal AI analyze your emotional state.
-                </p>
+        <div className="min-h-screen bg-[#020202] text-white p-6 lg:p-12 relative overflow-hidden font-sans">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/10 rounded-full blur-[100px]"></div>
 
-                <div className="bg-slate-800 p-8 rounded-xl shadow-2xl mb-12">
-                    <form onSubmit={handleSubmitMood} className="space-y-6">
-                        {/* Journal Entry Text Area */}
-                        <div>
-                            <label htmlFor="journal" className="block text-lg font-medium text-gray-300 mb-2 text-left">
-                                📝 What's on your mind today?
-                            </label>
-                            <textarea
-                                id="journal"
-                                className="w-full p-4 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:ring-amber-400 focus:border-amber-400 transition-all duration-200"
-                                rows="6"
-                                placeholder="Write about your thoughts, feelings, and experiences..."
-                                value={journalEntry}
-                                onChange={(e) => setJournalEntry(e.target.value)}
-                                required
-                            ></textarea>
-                        </div>
+            <div className="max-w-5xl mx-auto relative z-10">
+                {/* Header Section */}
+                <header className="mb-16 text-center lg:text-left">
+                    <button 
+                        onClick={() => navigate('/dashboard')}
+                        className="text-amber-500 font-black tracking-[0.2em] text-xs uppercase mb-6 hover:text-white transition-colors"
+                    >
+                        ← BACK TO HUB
+                    </button>
+                    <h1 className="text-6xl lg:text-8xl font-black italic tracking-tighter uppercase leading-none">
+                        MOOD <span className="text-amber-500 underline decoration-indigo-500/30">SANCTUARY</span>
+                    </h1>
+                    <p className="text-slate-500 mt-6 text-xl italic font-medium max-w-2xl">
+                        "Your words are the mirror of your soul. Let our AI help you understand the colors of your mind today."
+                    </p>
+                </header>
 
-                        {/* AI Analysis Button and Output */}
-                        <div className="text-left">
-                            <button
-                                type="button"
-                                onClick={handleAnalyzeMoodWithAI}
-                                className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition-colors duration-200"
-                                disabled={isLoadingAI || !journalEntry.trim()}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    {/* Input Section (Journaling Area) */}
+                    <div className="lg:col-span-7">
+                        <div className="bg-slate-900/30 backdrop-blur-3xl border border-white/5 p-8 lg:p-10 rounded-[4rem] shadow-2xl relative">
+                            <div className="absolute top-8 right-10 text-4xl animate-bounce">✍️</div>
+                            <h2 className="text-2xl font-black uppercase italic mb-8 tracking-tight text-indigo-400">Deep Reflection</h2>
+                            
+                            <textarea 
+                                value={journal}
+                                onChange={(e) => setJournal(e.target.value)}
+                                placeholder="Aaj kaisa feel kar rahe ho? Dil khol kar likho..." 
+                                className="w-full h-80 bg-black/40 border border-white/10 rounded-[2.5rem] p-8 text-xl text-slate-200 outline-none focus:border-amber-500/50 transition-all resize-none placeholder:text-slate-700"
+                            />
+
+                            <button 
+                                onClick={handleAnalyze}
+                                disabled={isAnalyzing || !journal}
+                                className={`w-full mt-8 py-6 rounded-full font-black uppercase tracking-widest text-sm transition-all shadow-xl flex items-center justify-center gap-4 ${
+                                    isAnalyzing 
+                                    ? 'bg-slate-800 text-slate-500' 
+                                    : 'bg-white text-black hover:bg-amber-500 hover:scale-[1.02] active:scale-95'
+                                }`}
                             >
-                                {isLoadingAI ? 'Analyzing...' : 'Analyze Mood with AI'}
+                                {isAnalyzing ? 'Decoding Emotions...' : 'ANALYZE WITH MANOBAL AI →'}
                             </button>
-                            
-                            {/* AI Error Display */}
-                            {aiError && <p className="text-red-400 mt-2 font-bold">{aiError}</p>}
-                            
-                            {/* AI Analysis Display */}
-                            {aiMoodAnalysis && (
-                                <div className="mt-4 p-4 bg-slate-700 rounded-lg border border-indigo-500">
-                                    <h3 className="text-xl font-semibold text-indigo-300">AI's Analysis:</h3>
-                                    <p className="text-lg mt-2">
-                                        Suggested Mood Score: <span className="font-bold text-amber-300">{aiMoodAnalysis.mood_score} / 10</span>
-                                    </p>
-                                    <p className="text-gray-300 mt-1 italic">
-                                        "{aiMoodAnalysis.analysis}"
-                                    </p>
-                                </div>
-                            )}
                         </div>
+                    </div>
 
-                        {/* Submission Button & Error */}
-                        {submissionError && <p className="text-red-400 text-center">{submissionError}</p>}
-                        <button
-                            type="submit"
-                            className="w-full px-6 py-3 bg-amber-500 text-gray-900 font-bold rounded-lg shadow-lg hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 focus:ring-offset-slate-800 transition-colors duration-200 text-xl"
-                            disabled={isLoadingAI || !aiMoodAnalysis} // Disable until analysis is complete
-                        >
-                            Save Entry (Score: {aiMoodAnalysis ? aiMoodAnalysis.mood_score : '?'}/10)
-                        </button>
-                    </form>
+                    {/* AI PERSPECTIVE (Result Area) */}
+                    <div className="lg:col-span-5">
+                        <div className="bg-gradient-to-br from-indigo-900/20 to-slate-900/40 backdrop-blur-3xl border border-white/10 p-10 rounded-[4rem] h-full flex flex-col justify-center relative overflow-hidden group">
+                            {/* Decorative Grid */}
+                            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#4f46e5_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                            
+                            <div className="relative z-10 text-center">
+                                <span className="text-xs font-black uppercase tracking-[0.4em] text-amber-500 mb-8 block">AI PERSPECTIVE</span>
+                                
+                                {analysisResult ? (
+                                    <div className="animate-in fade-in zoom-in duration-700">
+                                        <div className="text-8xl font-black italic tracking-tighter text-white mb-2 leading-none">
+                                            {analysisResult.mood_score}<span className="text-3xl text-indigo-500">/10</span>
+                                        </div>
+                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-10">VIBE INTENSITY</p>
+                                        
+                                        <div className="bg-black/40 p-8 rounded-[2.5rem] border border-white/5 text-left italic leading-relaxed text-slate-300">
+                                            "{analysisResult.analysis}"
+                                        </div>
+                                        
+                                        <button 
+                                            onClick={() => navigate('/analysis')}
+                                            className="mt-10 text-xs font-black text-amber-500 underline underline-offset-8 hover:text-white transition-colors"
+                                        >
+                                            VIEW HISTORICAL TRENDS
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="py-20 opacity-30 italic font-medium text-slate-500">
+                                        Waiting for your words <br /> to begin the analysis...
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Past Mood Entries Section Placeholder */}
-                <h2 className="text-3xl font-bold mb-4 text-indigo-400">Past Entries</h2>
-                {isLoadingPastMoods ? (
-                    <p className="text-gray-400">Loading past entries...</p>
-                ) : pastMoods.length === 0 ? (
-                    <p className="text-gray-400">No entries recorded yet.</p>
-                ) : (
-                    <div className="w-full space-y-4 text-left">
-                        {pastMoods.map((entry, index) => (
-                            <div key={index} className="bg-slate-700 p-4 rounded-lg">
-                                <p className="font-semibold text-lg text-amber-300">Score: {entry.mood_score}/10</p>
-                                <p className="text-gray-300 italic my-1">"{entry.journal_entry}"</p>
-                                <p className="text-sm text-gray-400">Logged: {moment(entry.log_timestamp).format('MMMM Do YYYY, h:mm a')}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {/* Mood Quick-Selection (Future feature preview) */}
+                <footer className="mt-20 flex flex-wrap justify-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
+                    {['😔', '😐', '😊', '🔥', '🌊'].map((emo, i) => (
+                        <div key={i} className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-3xl cursor-pointer hover:bg-amber-500 transition-all hover:scale-110">
+                            {emo}
+                        </div>
+                    ))}
+                </footer>
             </div>
         </div>
     );

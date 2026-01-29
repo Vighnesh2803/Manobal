@@ -1,7 +1,8 @@
-// file: frontend/src/pages/Dashboard.jsx (ULTRA-ATTRACTIVE & DYNAMIC)
+// file: frontend/src/pages/Dashboard.jsx (FINAL SYNCED VERSION)
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+// Ensure api.js has export const getDashboardData = ...
 import { getDashboardData } from '../api'; 
 
 const Dashboard = () => {
@@ -12,7 +13,7 @@ const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState({
         current_streak: 0,
         proactive_alert: { 
-            message: "Professional counselors are online. Need someone to talk to?", 
+            message: "Syncing with Manobal AI...", 
             type: "info" 
         }, 
     });
@@ -29,11 +30,18 @@ const Dashboard = () => {
             setIsLoading(true);
             setError(null);
             try {
+                // Calls @app.get("/dashboard/data/{user_id}") in main.py
                 const data = await getDashboardData(userId);
-                setDashboardData(prev => ({ ...prev, ...data })); 
+                
+                // Data mapping ensure streak and alerts are captured
+                setDashboardData({
+                    current_streak: data.current_streak || 0,
+                    proactive_alert: data.proactive_alert || { message: "All systems clear. Stay mindful!", type: "info" }
+                }); 
             } catch (err) {
                 console.error("Dashboard Sync Error:", err);
-                setError(err.response?.data?.detail || 'Connection failed.');
+                // Fixes 404 error display
+                setError(err.response?.data?.detail || 'Backend address mismatch (404). Check main.py routes.');
             } finally {
                 setIsLoading(false);
             }
@@ -42,7 +50,6 @@ const Dashboard = () => {
         fetchDashboardInfo();
     }, [userId, navigate]); 
 
-    // SYNCED: All features in uniform color + New Counselor feature
     const features = [
         { title: "Mood Log", description: "Track your emotions, gain clarity.", icon: "📝", link: "/moodlog", color: "text-blue-400" },
         { title: "AI Chatbot", description: "Your empathetic AI companion awaits.", icon: "🤖", link: "/chatbot", color: "text-green-400" },
@@ -51,7 +58,7 @@ const Dashboard = () => {
         { title: "Zen Breathing", description: "Find calm with guided 3D patterns.", icon: "🌀", link: "/breathing", color: "text-cyan-400" },
         { title: "AI Analysis", description: "Visualize your emotional journey.", icon: "📈", link: "/aid", color: "text-red-400" },
         { title: "Trusted Access", description: "Securely share insights with experts.", icon: "🛡️", link: "/access", color: "text-orange-400" },
-        { title: "Helpline", description: "Immediate support in urgent moments.", icon: "📞", link: "/helpline", color: "text-pink-400" },
+        { title: "Helpline", description: "Immediate support in urgent moments.", icon: "📞", link: "/pink-400" },
     ];
 
     if (isLoading) return (
@@ -75,13 +82,10 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-[#050505] text-white p-6 lg:p-12 font-sans relative overflow-hidden">
-            {/* Background Aesthetic Glows */}
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] animate-blob" />
             <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-blob animation-delay-2000" />
-            <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] animate-blob animation-delay-4000" />
 
             <div className="max-w-7xl mx-auto relative z-10">
-                {/* Header Section: Bold & Minimal */}
                 <header className="mb-16">
                     <h1 className="text-5xl lg:text-8xl font-black mb-3 tracking-tighter uppercase leading-none">
                         HELLO, <span className="text-amber-400">{username}</span>
@@ -89,7 +93,6 @@ const Dashboard = () => {
                     <p className="text-slate-500 text-xl font-medium tracking-tight italic">Your personalized resilience hub is live.</p>
                 </header>
 
-                {/* Proactive Alert Section */}
                 {dashboardData.proactive_alert && (
                     <div className="mb-12 p-6 rounded-[2rem] bg-slate-900/40 border border-white/5 backdrop-blur-md flex items-center gap-4 animate-fade-in shadow-xl">
                         <span className="text-3xl">💡</span>
@@ -97,24 +100,20 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* Main Grid: Clean & Uniform */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    
-                    {/* Gold/Amber Streak Card - The Star of the Dashboard */}
-                    <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-8 rounded-[2.5rem] flex flex-col justify-between transform transition-all duration-300 hover:scale-[1.03] cursor-pointer shadow-2xl shadow-amber-500/20 relative overflow-hidden group min-h-[300px]" onClick={() => navigate('/streaks')}>
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700 blur-2xl" />
+                    {/* Gold Streak Card - Fixes unique key & scaling */}
+                    <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-8 rounded-[2.5rem] flex flex-col justify-between transform transition-all duration-300 hover:scale-[1.03] cursor-pointer shadow-2xl relative overflow-hidden group min-h-[300px]" onClick={() => navigate('/streaks')}>
                         <span className="text-6xl mb-4 group-hover:rotate-12 transition-transform">🔥</span>
                         <div>
-                            <h3 className="text-gray-950 text-2xl font-black uppercase tracking-tighter leading-none mb-1">STREAK</h3>
+                            <h3 className="text-gray-950 text-2xl font-black uppercase mb-1">STREAK</h3>
                             <p className="text-9xl font-black text-gray-950 leading-none">{dashboardData.current_streak}</p>
-                            <p className="text-gray-900 font-bold text-xs uppercase tracking-widest opacity-80 mt-2">Days Strong</p>
+                            <p className="text-gray-900 font-bold text-xs uppercase mt-2">Days Strong</p>
                         </div>
                     </div>
 
-                    {/* Uniform Feature Cards Mapping */}
-                    {features.map((f, i) => (
+                    {features.map((f) => (
                         <div 
-                            key={i} 
+                            key={f.title} // Fixes "unique key" console error
                             onClick={() => navigate(f.link)}
                             className="p-8 rounded-[2.5rem] bg-slate-900/40 border border-white/5 backdrop-blur-md transition-all duration-300 cursor-pointer group hover:border-amber-500/50 hover:shadow-2xl flex flex-col justify-between min-h-[300px]"
                         >
@@ -135,18 +134,14 @@ const Dashboard = () => {
                 @keyframes blob {
                     0% { transform: translate(0, 0) scale(1); }
                     33% { transform: translate(30px, -50px) scale(1.1); }
-                    66% { transform: translate(-20px, 20px) scale(0.9); }
                     100% { transform: translate(0, 0) scale(1); }
                 }
                 .animate-blob { animation: blob 10s infinite ease-in-out; }
-                .animation-delay-2000 { animation-delay: 2s; }
-                .animation-delay-4000 { animation-delay: 4s; }
-
+                .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
                 @keyframes fade-in {
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
             `}</style>
         </div>
     );
