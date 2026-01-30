@@ -7,7 +7,7 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 
-// Protected Pages (Ensure 'export default' in each file)
+// Protected Pages (Ensure 'export default' exists in each file)
 import Dashboard from './pages/Dashboard.jsx';
 import Chatbot from './pages/chatbot.jsx';
 import Helpline from './pages/Helpline.jsx';
@@ -33,41 +33,43 @@ function App() {
         <Router>
             <Routes>
                 {/* --- Public Routes --- */}
+                {/* Landing Page as default entry point */}
+                <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/" element={<LandingPage />} />
                 
-                {/* Public Counselor Registration */}
+                {/* Counselor Registration is public */}
                 <Route path="/counselor-register" element={<CounselorReg />} />
                 
-                {/* --- Private/Protected Routes (NESTED STRUCTURE) --- */}
+                {/* --- Protected Routes (Nested in Layout) --- */}
+                {/* PrivateRoute ensures user_id exists in localStorage */}
                 <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
                     
-                    {/* General Dashboard & Support */}
+                    {/* Dashboard: Hub for all features */}
                     <Route path="/dashboard" element={<Dashboard />} />
+                    
+                    {/* AI & Analytics */}
+                    <Route path="/aid" element={<AIDetector />} />      
                     <Route path="/chatbot" element={<Chatbot />} />
-                    <Route path="/helpline" element={<Helpline />} />
+                    
+                    {/* Mood & Persistence */}
+                    <Route path="/moodlog" element={<MoodLog />} />       
                     <Route path="/streaks" element={<Streaks />} />
                     
-                    {/* Mind Relaxation & Breathing */}
+                    {/* Support & Access */}
+                    <Route path="/access" element={<ShareData />} /> 
+                    <Route path="/helpline" element={<Helpline />} />
+                    <Route path="/counselors" element={<Counselors />} /> 
+
+                    {/* Relaxation Tools */}
                     <Route path="/relax" element={<RelaxGame />} /> 
                     <Route path="/breathing" element={<BreathingZen />} /> 
 
-                    {/* Counselor List (User View) */}
-                    <Route path="/counselors" element={<Counselors />} /> 
-                    
-                    {/* Data Logging & Analysis */}  
-                    <Route path="/moodlog" element={<MoodLog />} />       
-                    <Route path="/aid" element={<AIDetector />} />         
-                    
-                    {/* Trusted Viewer Access Route */}
-                    <Route path="/access" element={<ShareData />} /> 
-
-                    {/* Fallback for unmatched protected paths */}
+                    {/* Fallback for invalid protected paths */}
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Route>
 
-                {/* Final Catch-all Fallback */}
+                {/* Final Catch-all Fallback to Landing Page */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>
