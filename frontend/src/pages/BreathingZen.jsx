@@ -1,10 +1,8 @@
-// file: frontend/src/pages/BreathingZen.jsx (ULTRA-ATTRACTIVE 3D EDITION)
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const BreathingZen = () => {
-    const [phase, setPhase] = useState('Inhale'); // Inhale, Hold, Exhale
+    const [phase, setPhase] = useState('Inhale'); 
     const [xp, setXp] = useState(() => parseInt(localStorage.getItem('zen_xp')) || 0);
 
     useEffect(() => {
@@ -16,7 +14,7 @@ const BreathingZen = () => {
         } else {
             timeout = setTimeout(() => {
                 setPhase('Inhale');
-                const newXp = xp + 15; // Higher reward for mindfulness
+                const newXp = xp + 15; 
                 setXp(newXp);
                 localStorage.setItem('zen_xp', newXp);
             }, 8000);
@@ -24,18 +22,19 @@ const BreathingZen = () => {
         return () => clearTimeout(timeout);
     }, [phase, xp]);
 
-    // Dynamic styles based on breathing phase
+    // Blue & Gold Dynamic Styles
     const getPhaseColor = () => {
-        if (phase === 'Inhale') return 'from-cyan-400 to-blue-600 shadow-cyan-500/50';
-        if (phase === 'Hold') return 'from-purple-500 to-indigo-700 shadow-purple-500/50';
-        return 'from-emerald-400 to-teal-600 shadow-emerald-500/50';
+        if (phase === 'Inhale') return 'from-blue-600 to-blue-400 shadow-blue-500/40';
+        if (phase === 'Hold') return 'from-[#FFD700] to-[#B8860B] shadow-yellow-500/40';
+        return 'from-blue-400 to-indigo-600 shadow-blue-400/40';
     };
 
     return (
-        <div className="min-h-screen bg-[#020202] text-white flex flex-col items-center justify-center p-6 overflow-hidden relative">
-            {/* Ambient Background Glow */}
+        <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center p-6 overflow-hidden relative font-sans">
+            
+            {/* 🌌 Ambient Background Glows */}
             <div className={`absolute w-[600px] h-[600px] rounded-full blur-[150px] opacity-20 transition-all duration-[3000ms] ${
-                phase === 'Inhale' ? 'bg-cyan-500' : phase === 'Hold' ? 'bg-purple-500' : 'bg-emerald-500'
+                phase === 'Hold' ? 'bg-yellow-500' : 'bg-blue-500'
             }`} />
 
             <style>{`
@@ -50,36 +49,38 @@ const BreathingZen = () => {
             `}</style>
 
             <header className="absolute top-10 w-full max-w-7xl flex justify-between px-10 z-20">
-                <Link to="/dashboard" className="group flex items-center gap-2 text-slate-500 font-black uppercase text-xs tracking-[0.3em] hover:text-white transition-all">
-                    <span className="text-xl group-hover:-translate-x-2 transition-transform">&larr;</span> EXIT ZEN
+                <Link to="/dashboard" className="group flex items-center gap-2 text-blue-400 font-black uppercase text-[10px] tracking-[0.4em] hover:text-[#FFD700] transition-all">
+                    <span className="text-xl group-hover:-translate-x-2 transition-transform">&larr;</span> EXIT ZEN NODE
                 </Link>
-                <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-4 rounded-3xl text-right">
-                    <p className="text-[10px] text-blue-400 font-black tracking-widest uppercase mb-1">Total Zen XP</p>
-                    <p className="text-4xl font-black italic tracking-tighter text-white">{xp}</p>
+                <div className="bg-blue-900/10 backdrop-blur-3xl border border-blue-500/20 px-10 py-5 rounded-[2.5rem] text-right shadow-2xl">
+                    <p className="text-[10px] text-[#FFD700] font-black tracking-widest uppercase mb-1 opacity-70">Total Zen XP</p>
+                    <p className="text-5xl font-black italic tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">{xp}</p>
                 </div>
             </header>
 
-            {/* The Main 3D Morphing Sphere */}
-            <div className={`morph-sphere w-64 h-64 bg-gradient-to-tr ${getPhaseColor()} shadow-[0_0_100px_rgba(0,0,0,0.5)] flex items-center justify-center transition-all duration-[2000ms]`}>
-                <div className="w-full h-full rounded-full border-4 border-white/20 animate-pulse scale-90" />
-                <div className="absolute w-full h-full rounded-full border-2 border-white/10 animate-ping scale-75" />
+            {/* 🏮 The Morphing Sphere (Blue & Gold Accents) */}
+            <div className={`morph-sphere w-64 h-64 bg-gradient-to-tr ${getPhaseColor()} shadow-[0_0_120px_rgba(0,0,0,0.6)] flex items-center justify-center transition-all duration-[2000ms] border border-white/10`}>
+                <div className="w-full h-full rounded-full border-4 border-white/10 animate-pulse scale-90" />
+                <div className="absolute w-full h-full rounded-full border-2 border-[#FFD700]/20 animate-ping scale-75" />
             </div>
 
-            <div className="mt-24 text-center z-10">
-                <p className="text-slate-500 font-black tracking-[0.8em] uppercase text-[10px] mb-4 opacity-50">Deep Relaxation Mode</p>
-                <h2 className={`text-8xl font-black italic uppercase tracking-tighter transition-colors duration-1000 ${
-                    phase === 'Inhale' ? 'text-cyan-400' : phase === 'Hold' ? 'text-purple-400' : 'text-emerald-400'
+            <div className="mt-28 text-center z-10">
+                <p className="text-blue-400 font-black tracking-[1em] uppercase text-[10px] mb-6 opacity-40">Neural Resonance Mode</p>
+                <h2 className={`text-9xl font-black italic uppercase tracking-tighter transition-all duration-1000 ${
+                    phase === 'Hold' ? 'text-[#FFD700] drop-shadow-[0_0_30px_rgba(255,215,0,0.3)]' : 'text-white'
                 }`}>
                     {phase}
                 </h2>
-                <div className="mt-6 flex justify-center gap-2">
+                
+                {/* ⏱️ Timing Indicators */}
+                <div className="mt-10 flex justify-center gap-4">
                     {[4, 7, 8].map((num, i) => (
-                        <span key={i} className={`w-12 py-1 rounded-full text-[10px] font-black border ${
+                        <div key={i} className={`px-6 py-2 rounded-2xl text-[11px] font-black border transition-all duration-500 ${
                             (phase === 'Inhale' && i === 0) || (phase === 'Hold' && i === 1) || (phase === 'Exhale' && i === 2)
-                            ? 'bg-white text-black border-white' : 'border-white/20 text-white/20'
+                            ? 'bg-[#FFD700] text-[#020617] border-[#FFD700] scale-110 shadow-lg shadow-yellow-500/20' : 'border-blue-500/20 text-blue-500/40'
                         }`}>
-                            {num}s
-                        </span>
+                            {num}S
+                        </div>
                     ))}
                 </div>
             </div>

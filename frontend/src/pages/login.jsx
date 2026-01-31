@@ -1,5 +1,3 @@
-// file: frontend/src/pages/Login.jsx (FINAL CORRECTION)
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -14,10 +12,7 @@ const Login = () => {
 
     const validate = () => {
         const newErrors = {};
-        // Removed validation for username containing only letters/spaces, as backend often requires alphanumeric
-        if (!username) {
-            newErrors.username = 'Username is required';
-        }
+        if (!username) newErrors.username = 'Username is required';
         if (!password) newErrors.password = 'Password is required';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -26,108 +21,98 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setMessage('');
-        if (!validate()) {
-            return;
-        }
+        if (!validate()) return;
         try {
-            // Note: In a final app, you should use the imported API function from api.js
-            // For now, keeping the direct axios call but updating the base URL dynamically is recommended.
-            const response = await axios.post('http://127.0.0.1:8000/login', {
-                username,
-                password,
-            });
+            const response = await axios.post('http://127.0.0.1:8000/login', { username, password });
             
-            // --- CRITICAL FIX: Save using the correct key 'manobal_user_id' ---
             localStorage.setItem('manobal_user_id', response.data.user_id);
-            // Also store the username for display in Navbar/Dashboard
             localStorage.setItem('manobal_username', response.data.username); 
 
-            setMessage(response.data.message);
-            
-            // Use a slight delay to allow the message to show before navigating
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 500); 
-
+            setMessage("Login successful! Syncing neural link...");
+            setTimeout(() => { navigate('/dashboard'); }, 1500); 
         } catch (error) {
-            setMessage(error.response?.data?.detail || 'Login failed');
-            console.error("Login Error:", error);
+            setMessage(error.response?.data?.detail || 'Identity verification failed');
         }
     };
 
     return (
-        <div className="flex min-h-screen bg-slate-950 text-gray-200">
-            {/* Left side: Hero Section */}
-            <div className="hidden lg:flex w-1/2 items-center justify-center bg-gray-900 p-8">
-                <div className="text-center">
-                    <h1 className="text-5xl font-extrabold mb-4 text-white">Welcome Back to <span className="text-amber-400">Manobal</span></h1>
-                    <p className="text-lg text-gray-400">
-                        Login in to find a safe space and connect with support.
+        <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center p-6 relative overflow-hidden font-sans">
+            {/* 🌌 Background Glows (Blue & Gold Theme) */}
+            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-5%] right-[-5%] w-[400px] h-[400px] bg-yellow-500/10 rounded-full blur-[100px]" />
+
+            <div className="max-w-5xl w-full grid lg:grid-cols-2 gap-0 bg-blue-950/20 backdrop-blur-3xl border border-blue-500/10 rounded-[3rem] overflow-hidden shadow-2xl relative z-10">
+                
+                {/* 🚀 Left Side: Brand Visual */}
+                <div className="hidden lg:flex flex-col justify-center p-16 bg-gradient-to-br from-blue-900/20 to-transparent border-r border-blue-500/10">
+                    <h1 className="text-7xl font-black tracking-tighter italic leading-none mb-6">
+                        MANO<span className="text-[#FFD700] drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]">BAL</span>
+                    </h1>
+                    <p className="text-xl text-blue-200/60 font-light leading-relaxed">
+                        Reconnect with your <span className="text-white font-bold border-b border-[#FFD700]">mental resilience</span>. 
+                        Your neural data is secured and ready for synchronization.
                     </p>
                 </div>
-            </div>
-            
-            {/* Right side: Login Form */}
-            <div className="flex w-full lg:w-1/2 items-center justify-center p-8 lg:p-12">
-                <div className="w-full max-w-md bg-slate-800 p-8 rounded-lg shadow-2xl border border-amber-500">
-                    <h2 className="text-3xl font-bold text-center mb-6 text-amber-400">User Login</h2>
+                
+                {/* 🏮 Right Side: Login Form */}
+                <div className="p-12 lg:p-16 flex flex-col justify-center">
+                    <div className="mb-10 text-center lg:text-left">
+                        <h2 className="text-3xl font-black italic tracking-tight text-white mb-2">User <span className="text-[#FFD700]">Login</span></h2>
+                        <p className="text-xs text-blue-400 font-black uppercase tracking-[0.3em]">Identity Verification Required</p>
+                    </div>
                     
                     <form onSubmit={handleLogin} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300">
-                                Username
-                            </label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Username</label>
                             <input
                                 type="text"
                                 value={username}
-                                onChange={(e) => { setUsername(e.target.value); if (errors.username) setErrors({ ...errors, username: '' }); }}
-                                className="mt-1 p-3 w-full bg-slate-700 border border-amber-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="w-full p-4 bg-blue-900/10 border border-blue-500/20 rounded-2xl focus:outline-none focus:border-[#FFD700]/50 transition-all text-white placeholder-blue-300/20"
+                                placeholder="Enter your identifier"
                                 required
                             />
-                            {errors.username && <p className="mt-1 text-red-400 text-sm">{errors.username}</p>}
                         </div>
                         
-                        <div className="relative">
-                            <label className="block text-sm font-medium text-gray-300">
-                                Password
-                            </label>
+                        <div className="space-y-2 relative">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Password</label>
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
-                                onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors({ ...errors, password: '' }); }}
-                                className="mt-1 p-3 w-full bg-slate-700 border border-amber-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full p-4 bg-blue-900/10 border border-blue-500/20 rounded-2xl focus:outline-none focus:border-[#FFD700]/50 transition-all text-white"
+                                placeholder="••••••••"
                                 required
                             />
                             <button
                                 type="button"
-                                className="absolute inset-y-0 right-0 top-6 flex items-center px-4 text-gray-400 hover:text-white"
+                                className="absolute right-4 top-10 text-[10px] font-black text-blue-400 uppercase tracking-widest hover:text-[#FFD700]"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {showPassword ? 'Hide' : 'Show'}
                             </button>
-                            {errors.password && <p className="mt-1 text-red-400 text-sm">{errors.password}</p>}
                         </div>
                         
                         <button
                             type="submit"
-                            className="w-full p-3 bg-amber-500 text-gray-900 font-semibold rounded-md hover:bg-amber-600 transition duration-300 transform hover:scale-105"
+                            className="w-full py-5 bg-[#FFD700] text-[#020617] font-black uppercase tracking-widest rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
                         >
-                            Login
+                            Authorize Access
                         </button>
                     </form>
 
                     {message && (
-                        <p className={`mt-4 text-center text-sm ${message.includes('successful') ? 'text-green-400' : 'text-red-400'}`}>
+                        <div className={`mt-6 p-4 rounded-xl text-center text-[10px] font-black uppercase tracking-widest border ${
+                            message.includes('successful') ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
+                        }`}>
                             {message}
-                        </p>
+                        </div>
                     )}
 
-                    <div className="mt-6 text-center text-sm text-gray-400">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="text-cyan-400 hover:underline">
-                            Register
-                        </Link>
-                    </div>
+                    <p className="mt-10 text-center text-[10px] font-black text-blue-400/50 uppercase tracking-widest">
+                        New to the ecosystem?{' '}
+                        <Link to="/register" className="text-[#FFD700] hover:underline">Create Account</Link>
+                    </p>
                 </div>
             </div>
         </div>

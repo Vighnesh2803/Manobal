@@ -1,84 +1,74 @@
-// file: frontend/src/pages/LandingPage.jsx
-
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
-  const features = [
-    { title: "Neural Mood Log", description: "Journal your thoughts and receive deep AI-driven emotional insights." },
-    { title: "Empathetic Chatbot", description: "A non-judgmental AI companion available 24/7 for immediate support." },
-    { title: "Trusted Access", description: "Generate secure tokens to share your trajectory with professionals." },
-    { title: "Zen Breathing", description: "Guided 3D breathing patterns to help regulate stress and anxiety." },
-    { title: "Elite Experts", description: "Connect with verified counselors for professional tele-health sessions." },
-    { title: "Resilience Streaks", description: "Build a consistent routine and track your mental health progress." }
-  ];
+    const navigate = useNavigate();
 
-  return (
-    <div className="flex min-h-screen bg-[#020202] text-white overflow-hidden font-sans">
-      <div className="flex flex-col lg:flex-row w-full">
+    const features = [
+        { id: "01", title: "Neural Mood Log", desc: "Journal your thoughts and receive deep AI-driven emotional insights." },
+        { id: "02", title: "Empathetic Chatbot", desc: "A non-judgmental AI companion available 24/7 for immediate support." },
+        { id: "03", title: "Trusted Access", desc: "Generate secure tokens to share your trajectory with professionals." },
+        { id: "04", title: "Zen Breathing", desc: "Guided 3D breathing patterns to help regulate stress and anxiety." }
+    ];
 
-        {/* LEFT CONTENT - Brand Identity */}
-        <div className="flex flex-col justify-center items-start p-8 md:p-16 lg:w-1/2 relative">
-          <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[120px]" />
-          
-          <div className="max-w-xl mx-auto lg:mx-0 relative z-10">
-            <h1 className="text-7xl md:text-9xl font-black mb-4 tracking-tighter uppercase leading-[0.85]">
-              Mana<span className="text-amber-500 italic">bal</span>
-            </h1>
-            <h2 className="text-2xl font-bold text-amber-500 mb-8 uppercase tracking-[0.2em] italic">
-              Your Path to a Brighter Tomorrow
-            </h2>
-            <p className="text-lg text-slate-500 mb-10 leading-relaxed font-medium">
-              Manobal is a compassionate space for suicide awareness and prevention. 
-              We provide powerful AI tools and a professional network to help you 
-              navigate mental health challenges and find your way forward.
-            </p>
+    return (
+        <div className="min-h-screen bg-[#020617] text-white overflow-hidden relative font-sans">
+            {/* 🌌 Background Glows (Blue & Gold) */}
+            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-5%] right-[-5%] w-[400px] h-[400px] bg-yellow-500/10 rounded-full blur-[100px]" />
 
-            <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
-              <Link
-                to="/login"
-                className="w-full sm:w-auto text-center px-10 py-5 bg-amber-500 text-black font-black uppercase tracking-widest rounded-2xl hover:bg-white transition-all shadow-2xl hover:scale-105"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="w-full sm:w-auto text-center px-10 py-5 border border-white/20 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-white hover:text-black transition-all shadow-xl hover:scale-105"
-              >
-                Register
-              </Link>
-            </div>
-          </div>
-        </div>
+            <div className="max-w-7xl mx-auto px-6 py-24 relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+                
+                {/* 🚀 Left Side: Brand & CTA */}
+                <div className="space-y-10">
+                    <div className="space-y-4">
+                        <h1 className="text-9xl font-black tracking-tighter italic leading-none">
+                            MANO<span className="text-[#FFD700] drop-shadow-[0_0_25px_rgba(255,215,0,0.4)]">BAL</span>
+                        </h1>
+                        <p className="text-xl text-blue-200/60 font-light max-w-lg leading-relaxed">
+                            Your path to a <span className="text-white font-bold border-b-2 border-[#FFD700]">brighter tomorrow</span>. 
+                            A compassionate neural ecosystem for mental resilience.
+                        </p>
+                    </div>
 
-        {/* RIGHT FEATURES - Grid System */}
-        <div className="relative flex flex-col justify-center items-center p-8 md:p-16 lg:w-1/2 bg-white/5 backdrop-blur-3xl border-l border-white/5">
-          <div className="relative z-10 w-full max-w-xl">
-            <h3 className="text-xs font-black tracking-[0.5em] text-center mb-12 text-slate-500 uppercase italic">
-                Neural Support Ecosystem
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="bg-black/40 p-8 rounded-[2.5rem] border border-white/5 hover:border-amber-500/50 transition-all duration-500 group"
-                >
-                  <h4 className="font-black text-lg text-white mb-3 uppercase tracking-tight group-hover:text-amber-500 transition-colors">
-                    {feature.title}
-                  </h4>
-                  <p className="text-xs text-slate-500 font-bold leading-relaxed italic">
-                    {feature.description}
-                  </p>
+                    <div className="flex gap-6">
+                        <button 
+                            onClick={() => navigate('/login')}
+                            className="px-12 py-4 bg-[#FFD700] text-[#020617] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-2xl shadow-yellow-500/20 active:scale-95"
+                        >
+                            Login
+                        </button>
+                        <button 
+                            onClick={() => navigate('/register')}
+                            className="px-12 py-4 border border-blue-500/30 bg-blue-500/5 backdrop-blur-xl font-black uppercase tracking-widest rounded-xl hover:bg-blue-500/10 transition-all"
+                        >
+                            Register
+                        </button>
+                    </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-      </div>
-    </div>
-  );
+                {/* 🏮 Right Side: Feature Grid */}
+                <div className="space-y-8">
+                    <div className="grid sm:grid-cols-2 gap-6">
+                        {features.map((f) => (
+                            <div key={f.id} className="group p-8 rounded-[2.5rem] bg-blue-900/10 border border-blue-500/10 backdrop-blur-2xl hover:border-[#FFD700]/40 hover:-translate-y-2 transition-all duration-500 shadow-2xl">
+                                <span className="text-[#FFD700] font-black text-xs tracking-widest mb-4 block opacity-50 group-hover:opacity-100">{f.id}</span>
+                                <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-4 text-white group-hover:text-[#FFD700] transition-colors">{f.title}</h3>
+                                <p className="text-xs text-blue-100/50 leading-relaxed italic italic">"{f.desc}"</p>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {/* Additional Features Text */}
+                    <div className="pt-4 px-4">
+                        <p className="text-blue-400/50 text-[10px] font-black uppercase tracking-[0.4em] animate-pulse">
+                            + Discover more advanced neural support features inside
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default LandingPage;
