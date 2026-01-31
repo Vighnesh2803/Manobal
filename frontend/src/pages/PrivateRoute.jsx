@@ -1,21 +1,20 @@
-// file: frontend/src/pages/PrivateRoute.jsx (CORRECTED)
+// file: frontend/src/pages/PrivateRoute.jsx
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 const PrivateRoute = ({ children }) => {
-    
-    // CRITICAL FIX: Use the correct key, 'manobal_user_id', which is saved in Login.jsx.
-    const userId = localStorage.getItem('manobal_user_id'); 
+    // Session check using localStorage
+    const userId = localStorage.getItem('manobal_user_id');
+    const isAuthenticated = !!userId;
 
-    // If the user ID exists (meaning they are logged in), render the requested child component (e.g., Dashboard, AI Detector).
-    if (userId) {
-        return children;
+    // If not authenticated, redirect to login
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
     }
 
-    // If there's no user ID, redirect them to the login page.
-    // Using `replace` is good practice to prevent going back to the protected route via the browser's back button.
-    return <Navigate to="/login" replace />;
+    // Renders the protected content (Dashboard/Layout)
+    return children ? children : <Outlet />;
 };
 
 export default PrivateRoute;

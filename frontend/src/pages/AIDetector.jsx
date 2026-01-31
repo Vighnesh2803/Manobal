@@ -1,4 +1,4 @@
-// file: frontend/src/pages/AIDetector.jsx
+// file: frontend/src/pages/AIDetector.jsx (ULTRA-PREMIUM EDITION)
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,10 +15,9 @@ import {
     Title,
     Tooltip,
     Legend,
-    Filler // FIX: Plugin imported to enable 'fill' option
+    Filler // Important for the area chart effect
 } from 'chart.js';
 
-// Register components and the Filler plugin
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -27,13 +26,12 @@ ChartJS.register(
     Title,
     Tooltip,
     Legend,
-    Filler 
+    Filler
 );
 
 const AIDetector = () => {
     const navigate = useNavigate();
-    const storedId = localStorage.getItem('manobal_user_id');
-    const userId = storedId ? parseInt(storedId) : null;
+    const userId = parseInt(localStorage.getItem('manobal_user_id'));
 
     const [moodEntries, setMoodEntries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -48,29 +46,21 @@ const AIDetector = () => {
         const fetchMoodData = async () => {
             setIsLoading(true);
             setError(null);
+
             try {
-                // Calls backend @app.get("/moods/{user_id}")
+                // Calls @app.get("/moods/history/{user_id}")
                 const response = await getMoods(userId);
-                
-                // Safe check: handle both object and direct array response
-                const rawData = response.mood_entries || (Array.isArray(response) ? response : []);
+                const rawData = response.mood_entries || [];
 
-                if (rawData.length === 0) {
-                    setMoodEntries([]);
-                    return;
-                }
-
-                // Sorting oldest to newest for the chart
-                const sortedEntries = [...rawData].sort((a, b) => {
-                    const dateA = new Date(a.log_timestamp || a.entry_date);
-                    const dateB = new Date(b.log_timestamp || b.entry_date);
-                    return dateA - dateB;
-                });
+                // Sort oldest to newest for chronological graph
+                const sortedEntries = [...rawData].sort(
+                    (a, b) => new Date(a.entry_date) - new Date(b.entry_date)
+                );
 
                 setMoodEntries(sortedEntries);
             } catch (err) {
                 console.error("Analysis Fetch Error:", err);
-                setError(err.response?.data?.detail || 'Failed to sync with Manobal Analysis server.');
+                setError('Failed to sync with Manobal Neural server.');
             } finally {
                 setIsLoading(false);
             }
@@ -79,118 +69,99 @@ const AIDetector = () => {
         fetchMoodData();
     }, [userId, navigate]);
 
-    // Chart Configuration
+    // Chart Configuration with Area Fill
     const chartData = {
-        labels: moodEntries.map(entry => moment(entry.log_timestamp || entry.entry_date).format('MMM D')),
+        labels: moodEntries.map(entry => moment(entry.entry_date).format('MMM D')),
         datasets: [
             {
-                label: 'Mood Intensity',
+                label: 'Mood Level',
                 data: moodEntries.map(entry => entry.mood_score),
                 borderColor: '#F59E0B', 
-                backgroundColor: 'rgba(245, 158, 11, 0.2)', // Requires Filler plugin
-                fill: true, 
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                borderWidth: 4,
                 tension: 0.4,
                 pointRadius: 6,
-                pointHoverRadius: 8,
                 pointBackgroundColor: '#6366F1',
+                fill: true, // Requires Filler plugin
             },
         ],
     };
 
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: '#1E293B',
-                padding: 12,
+                backgroundColor: '#0F172A',
+                titleFont: { size: 14, weight: 'bold' },
+                padding: 15,
                 callbacks: {
-                    label: function(context) {
+                    label: (context) => {
                         const entry = moodEntries[context.dataIndex];
-                        return [
-                            ` Mood Score: ${entry.mood_score}/10`,
-                            ` AI Analysis: ${entry.ai_analysis_text || 'No summary available'}`
-                        ];
+                        return ` Mood: ${entry.mood_score}/10 | ${entry.ai_analysis_text || 'Log Saved'}`;
                     }
                 }
             }
         },
         scales: {
-            y: {
-                min: 0,
-                max: 10,
-                grid: { color: '#334155' },
-                ticks: { color: '#94A3B8' }
-            },
-            x: {
-                grid: { display: false },
-                ticks: { color: '#94A3B8' }
-            }
+            y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B' } },
+            x: { grid: { display: false }, ticks: { color: '#64748B' } }
         }
     };
 
-    if (isLoading) return <div className="h-screen bg-gray-950 flex items-center justify-center text-amber-400 animate-pulse font-bold">ANALYZING TRENDS...</div>;
+    if (isLoading) return (
+        <div className="h-screen bg-[#020202] flex flex-col items-center justify-center space-y-4">
+            <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-amber-500 font-black tracking-widest uppercase text-xs">Accessing Neural Patterns...</p>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-950 text-white p-6 lg:p-12">
-            <div className="max-w-6xl mx-auto">
-                <header className="mb-12 text-center">
-                    <h1 className="text-4xl font-black text-amber-500 tracking-tight uppercase mb-2 italic">Mood Intelligence Analysis</h1>
-                    <p className="text-slate-400">Deep-dive into your mental well-being trends powered by Manobal AI.</p>
+        <div className="min-h-screen bg-[#020202] text-white p-6 lg:p-12 relative font-sans">
+            {/* Background Glow */}
+            <div className="absolute top-0 left-0 w-[50%] h-[50%] bg-indigo-600/5 rounded-full blur-[120px]" />
+            
+            <div className="max-w-6xl mx-auto relative z-10">
+                <header className="mb-16 flex justify-between items-end">
+                    <div>
+                        <h1 className="text-5xl lg:text-7xl font-black tracking-tighter uppercase italic">Neural <span className="text-amber-500">Analytics</span></h1>
+                        <p className="text-slate-500 font-bold italic mt-2">Visualizing your resilience journey through Manobal AI.</p>
+                    </div>
+                    <button onClick={() => navigate('/dashboard')} className="text-[10px] font-black tracking-[0.3em] text-slate-500 hover:text-white transition-all uppercase">← Return to Hub</button>
                 </header>
 
-                {error ? (
-                    <div className="bg-red-900/20 border border-red-500 text-red-400 p-6 rounded-2xl text-center font-bold">⚠️ {error}</div>
-                ) : moodEntries.length === 0 ? (
-                    <div className="text-center py-20 bg-slate-900 rounded-3xl border border-slate-800">
-                        <h2 className="text-2xl font-bold mb-4">Insufficient Data</h2>
-                        <p className="text-slate-400 mb-6">Log your first mood entry to see the AI analysis in action.</p>
-                        <button onClick={() => navigate('/moodlog')} className="bg-amber-500 text-black px-8 py-3 rounded-full font-bold uppercase transition-all hover:bg-amber-400">Start Logging</button>
+                {moodEntries.length === 0 ? (
+                    <div className="bg-white/5 border border-white/10 p-20 rounded-[3rem] text-center backdrop-blur-3xl">
+                        <p className="text-2xl font-bold text-slate-400 italic mb-8">System requires entry data to generate trajectory.</p>
+                        <button onClick={() => navigate('/moodlog')} className="bg-white text-black px-12 py-4 rounded-full font-black uppercase tracking-widest hover:bg-amber-500 transition-all">Start Log</button>
                     </div>
                 ) : (
                     <>
-                        {/* Visualization Section */}
-                        <section className="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl mb-12">
-                            <h2 className="text-xl font-bold mb-8 flex items-center uppercase tracking-wider">
-                                <span className="w-2 h-8 bg-amber-500 mr-4 rounded-full"></span>
-                                Emotional Trajectory
-                            </h2>
-                            <div className="h-80 lg:h-96">
-                                <Line data={chartData} options={chartOptions} />
-                            </div>
-                        </section>
+                        {/* Visualization */}
+                        <div className="bg-white/5 border border-white/10 p-10 rounded-[3rem] backdrop-blur-3xl mb-12 shadow-2xl h-[450px]">
+                             <Line data={chartData} options={chartOptions} />
+                        </div>
 
-                        {/* Analysis Feedback List */}
-                        <section>
-                            <h2 className="text-xl font-bold mb-8 flex items-center uppercase tracking-wider">
-                                <span className="w-2 h-8 bg-indigo-500 mr-4 rounded-full"></span>
-                                Historical AI Feedback
-                            </h2>
-                            <div className="grid gap-6 md:grid-cols-2">
-                                {[...moodEntries].reverse().map((entry, index) => (
-                                    <div key={index} className="bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-indigo-500 transition-all">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                                                {moment(entry.log_timestamp || entry.entry_date).format('MMMM D, YYYY')}
-                                            </span>
-                                            <div className={`px-3 py-1 rounded-full text-xs font-black ${
-                                                entry.mood_score >= 7 ? 'bg-green-500/10 text-green-400' : 
-                                                entry.mood_score >= 4 ? 'bg-amber-500/10 text-amber-400' : 'bg-red-500/10 text-red-400'
-                                            }`}>
-                                                SCORE: {entry.mood_score}/10
-                                            </div>
-                                        </div>
-                                        <p className="text-slate-200 italic mb-4">"{entry.journal_entry}"</p>
-                                        <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
-                                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-2 block">AI Summary</span>
-                                            <p className="text-sm text-slate-400 leading-relaxed">
-                                                {entry.ai_analysis_text || "Analysis pending..."}
-                                            </p>
-                                        </div>
+                        {/* Analysis List */}
+                        <h2 className="text-xs font-black tracking-[0.5em] text-indigo-500 uppercase mb-8 ml-4 italic">Neural Log History</h2>
+                        <div className="grid gap-6 md:grid-cols-2">
+                            {[...moodEntries].reverse().map((entry, idx) => (
+                                <div key={idx} className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] hover:border-indigo-500/50 transition-all group">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{moment(entry.entry_date).format('MMMM D, YYYY')}</p>
+                                        <span className={`px-4 py-1 rounded-full text-[10px] font-black ${
+                                            entry.mood_score >= 7 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                                        }`}>SCORE: {entry.mood_score}/10</span>
                                     </div>
-                                ))}
-                            </div>
-                        </section>
+                                    <p className="text-slate-200 text-lg mb-6 italic font-medium leading-relaxed">"{entry.journal_entry}"</p>
+                                    <div className="bg-black/40 p-5 rounded-2xl border border-white/5">
+                                        <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-2">Manobal Insight</p>
+                                        <p className="text-sm text-slate-400 font-medium leading-relaxed">{entry.ai_analysis_text || "Deep reflection complete."}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </>
                 )}
             </div>

@@ -2,23 +2,21 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8000';
 
+// Axios Instance for cleaner calls
+const API = axios.create({
+    baseURL: API_BASE_URL,
+});
+
 /* =========================
    AUTH
 ========================= */
 export const registerUser = async (username, email, password) => {
-  const res = await axios.post(`${API_BASE_URL}/register`, {
-    username,
-    email,
-    password,
-  });
+  const res = await API.post('/register', { username, email, password });
   return res.data;
 };
 
 export const loginUser = async (username, password) => {
-  const res = await axios.post(`${API_BASE_URL}/login`, {
-    username,
-    password,
-  });
+  const res = await API.post('/login', { username, password });
   return res.data;
 };
 
@@ -26,72 +24,66 @@ export const loginUser = async (username, password) => {
    DASHBOARD / STREAK
 ========================= */
 export const getDashboardData = async (userId) => {
-  const res = await axios.get(
-    `${API_BASE_URL}/dashboard/data/${parseInt(userId)}`
-  );
+  const res = await API.get(`/dashboard/data/${parseInt(userId)}`);
   return res.data;
 };
 
-// ✅ Streaks.jsx expects THIS
 export const getStreak = async (userId) => {
-  const res = await axios.get(
-    `${API_BASE_URL}/dashboard/data/${parseInt(userId)}`
-  );
+  const res = await API.get(`/dashboard/data/${parseInt(userId)}`);
   return res.data.current_streak || 0;
 };
 
 /* =========================
-   MOODS
+   MOODS & AI ANALYSIS
 ========================= */
-export const addMoodEntry = async (
-  userId,
-  moodScore,
-  journalEntry,
-  aiAnalysis
-) => {
-  const res = await axios.post(`${API_BASE_URL}/moods`, {
+
+/* ✅ FIXED: Corrected route to match main.py '@app.get("/moods/{user_id}")' */
+export const getMoods = async (userId) => {
+  const res = await API.get(`/moods/${parseInt(userId)}`); 
+  return res.data;
+};
+
+/* AI mood rating call */
+export const getAIMoodAnalysis = async (userId, prompt) => {
+  const res = await API.post('/ai/mood_rating', {
     user_id: parseInt(userId),
-    mood_score: parseInt(moodScore),
-    journal_entry: journalEntry,
-    ai_analysis: aiAnalysis || null,
+    prompt: prompt,
   });
   return res.data;
 };
 
-export const getMoods = async (userId) => {
-  const res = await axios.get(
-    `${API_BASE_URL}/moods/${parseInt(userId)}`
-  );
+/* Save mood entry and update streak */
+export const addMoodEntry = async (userId, moodScore, journalEntry, aiAnalysis) => {
+  const res = await API.post('/moods', {
+    user_id: parseInt(userId),
+    mood_score: parseInt(moodScore),
+    journal_entry: journalEntry,
+    // Backend expects ai_analysis_text via the model logic
+    ai_analysis: aiAnalysis || null, 
+  });
   return res.data;
 };
 
 /* =========================
    CHATBOT
-========================= */
+======================== */
 export const chatWithAI = async (userId, prompt) => {
-  const res = await axios.post(
-    `${API_BASE_URL}/chatbot`,
-    {
-      user_id: parseInt(userId),
-      prompt,
-    },
-    {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: 30000,
-    }
-  );
+  const res = await API.post('/chatbot', {
+    user_id: parseInt(userId),
+    prompt,
+  }, {
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 30000,
+  });
   return res.data;
 };
 
 /* =========================
    TRUSTED ACCESS / SHARE
 ========================= */
-export const generateAccessToken = async (
-  userId,
-  professionalName,
-  durationHours
-) => {
-  const res = await axios.post(`${API_BASE_URL}/access/generate`, {
+export const generateAccessToken = async (userId, professionalName, durationHours) => {
+  // Matches '@app.post("/access/generate")'
+  const res = await API.post('/access/generate', {
     user_id: parseInt(userId),
     professional_name: professionalName,
     duration_hours: parseInt(durationHours),
@@ -99,10 +91,17 @@ export const generateAccessToken = async (
   return res.data;
 };
 
+/* View shared data using generated token */
+export const viewSharedData = async (token) => {
+  // Matches '@app.get("/access/view/{token}")'
+  const res = await API.get(`/access/view/${token}`);
+  return res.data;
+};
+
+/* Revoke token */
 export const revokeAccessToken = async (userId) => {
-  const res = await axios.delete(
-    `${API_BASE_URL}/access/revoke/${parseInt(userId)}`
-  );
+  // Syncing with backend revoke logic
+  const res = await API.delete(`/access/revoke/${parseInt(userId)}`);
   return res.data;
 };
 
@@ -110,6 +109,6 @@ export const revokeAccessToken = async (userId) => {
    COUNSELORS
 ========================= */
 export const getCounselorsList = async () => {
-  const res = await axios.get(`${API_BASE_URL}/counselors/list`);
+  const res = await API.get('/counselors/list');
   return res.data;
 };
