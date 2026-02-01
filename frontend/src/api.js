@@ -99,10 +99,10 @@ export const viewSharedData = async (token) => {
 };
 
 /* Revoke token */
+// api.js mein revoke function check karein
 export const revokeAccessToken = async (userId) => {
-  // Syncing with backend revoke logic
-  const res = await API.delete(`/access/revoke/${parseInt(userId)}`);
-  return res.data;
+    const response = await API.post(`/access/revoke/${userId}`);
+    return response.data;
 };
 
 /* =========================

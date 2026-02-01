@@ -73,7 +73,7 @@ const Dashboard = () => {
                         </h1>
                         <p className="text-blue-400/50 font-black uppercase tracking-[0.5em] text-[10px]">Welcome to the Manobal Neural Node</p>
                     </div>
-                    <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500/40 hover:text-red-500 transition-colors mb-4 lg:mb-2">TERMINATE_SESSION_LOGOUT</button>
+                    <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500/40 hover:text-red-500 transition-colors mb-4 lg:mb-2"></button>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
