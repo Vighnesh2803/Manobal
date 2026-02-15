@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCounselorsList } from '../api'; 
+import axios from 'axios';
 
 const Counselors = () => {
     const navigate = useNavigate();
@@ -8,26 +8,24 @@ const Counselors = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedCounselor, setSelectedCounselor] = useState(null);
 
+    // 🔥 API Fetching Logic with Final Fix
     const fetchCounselors = async () => {
         setIsLoading(true);
         try {
-            const data = await getCounselorsList();
-            setCounselors(data);
+            // Direct call to avoid 'getCounselorsList' undefined issues
+            const response = await axios.get('http://localhost:8000/counselors/list');
+            
+            if (response.data && Array.isArray(response.data)) {
+                setCounselors(response.data);
+            } else {
+                // Agar DB khali hai toh empty array set karein
+                setCounselors([]);
+            }
         } catch (error) {
-            console.error("Fetch Error:", error);
-            // Fallback for demo with Blue/Gold alignment
-            setCounselors([
-                {
-                    id: 1,
-                    name: "Dr. Sameer Malan",
-                    specialization: "Clinical Neuropsychologist",
-                    experience: "12 Years",
-                    available_from: "10:00 AM",
-                    available_to: "04:00 PM",
-                    meeting_link: "https://zoom.us"
-                }
-            ]);
+            console.error("Neural Sync Error:", error);
+            // Error handling alert
         } finally {
+            // Yeh spinner ko 100% stop karega
             setIsLoading(false);
         }
     };
@@ -38,7 +36,7 @@ const Counselors = () => {
 
     return (
         <div className="min-h-screen bg-[#020617] text-white p-8 lg:p-20 relative overflow-x-hidden font-sans">
-            {/* 🌌 Background Glows */}
+            {/* 🌌 Cyberpunk Background Glows */}
             <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[150px] animate-pulse" />
             <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-yellow-500/5 rounded-full blur-[120px]" />
 
@@ -47,7 +45,7 @@ const Counselors = () => {
                     <div className="space-y-4">
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="text-blue-400 font-black mb-8 tracking-[0.5em] text-[10px] uppercase block hover:text-[#FFD700] transition-colors"
+                            className="text-blue-400 font-black mb-8 tracking-[0.5em] text-[10px] uppercase block hover:text-[#FFD700] transition-all"
                         >
                             &larr; EXIT TO HUB
                         </button>
@@ -66,18 +64,18 @@ const Counselors = () => {
                 </header>
 
                 {isLoading ? (
+                    /* 🌀 Syncing Spinner */
                     <div className="flex flex-col items-center justify-center py-48">
                         <div className="w-16 h-16 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin mb-6"></div>
                         <p className="text-blue-400 font-black tracking-[0.4em] text-[10px] uppercase opacity-50">Authenticating Neural Profiles...</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {counselors.map((c, index) => (
+                        {counselors.length > 0 ? counselors.map((c, index) => (
                             <div
                                 key={c.id || index}
                                 className="bg-blue-900/10 border border-blue-500/10 p-12 rounded-[4rem] backdrop-blur-3xl hover:border-[#FFD700]/30 transition-all duration-500 group flex flex-col justify-between shadow-2xl relative overflow-hidden"
                             >
-                                {/* Decorative Accent */}
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFD700]/5 rounded-bl-[4rem] pointer-events-none" />
                                 
                                 <div>
@@ -90,7 +88,7 @@ const Counselors = () => {
 
                                     <div className="space-y-4 mb-12">
                                         <div className="flex justify-between items-center text-sm border-b border-blue-500/5 pb-3">
-                                            <span className="text-blue-300/30 uppercase font-black text-[9px] tracking-[0.2em]">Clinical Tenure</span>
+                                            <span className="text-blue-300/30 uppercase font-black text-[9px] tracking-[0.2em]">Experience</span>
                                             <span className="font-bold text-white italic">{c.experience}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-sm">
@@ -107,7 +105,11 @@ const Counselors = () => {
                                     INITIALIZE SESSION &rarr;
                                 </button>
                             </div>
-                        ))}
+                        )) : (
+                            <div className="col-span-full text-center py-20 bg-white/5 rounded-[4rem] border border-dashed border-white/10">
+                                <p className="text-gray-500 uppercase tracking-widest font-bold">No Neural Profiles Found in Registry</p>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -120,19 +122,17 @@ const Counselors = () => {
                             <span className="text-5xl">🩺</span>
                         </div>
                         <h2 className="text-5xl font-black italic mb-4 uppercase tracking-tighter text-white">{selectedCounselor.name}</h2>
-                        <p className="text-blue-400/60 mb-12 italic text-sm tracking-wide">Ready for your specialized telehealth synchronization?</p>
+                        <p className="text-blue-400/60 mb-12 italic text-sm tracking-wide">Ready for telehealth synchronization?</p>
 
                         <div className="flex flex-col gap-5">
                             <a
                                 href={selectedCounselor.meeting_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                onClick={() => setSelectedCounselor(null)}
-                                className="block w-full bg-[#FFD700] text-[#020617] py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-2xl shadow-yellow-500/20"
+                                className="block w-full bg-[#FFD700] text-[#020617] py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all text-center"
                             >
-                                START TELE-HEALTH SESSION
+                                START SESSION
                             </a>
-
                             <button
                                 onClick={() => setSelectedCounselor(null)}
                                 className="text-[10px] font-black text-blue-500/50 uppercase tracking-[0.4em] hover:text-red-500 transition-colors mt-4"

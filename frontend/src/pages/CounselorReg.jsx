@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 const CounselorReg = () => {
     const navigate = useNavigate();
+    
+    // 1. Initial State: Synced with main.py 'CounselorCreate' model
     const [counselor, setCounselor] = useState({
         name: '',
         email: '',
@@ -22,123 +24,147 @@ const CounselorReg = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:8000/counselor/register', counselor);
-            alert("Registration Successful! Welcome to the Manobal Expert Network.");
-            navigate('/login');
+            // 2. Payload Construction: Ensuring exact match with Pydantic model
+            const payload = {
+                name: counselor.name,
+                email: counselor.email,
+                password: counselor.password,
+                specialization: counselor.specialization,
+                experience: counselor.experience,
+                available_from: counselor.available_from,
+                available_to: counselor.available_to,
+                meeting_link: counselor.meeting_link
+            };
+
+            console.log("Submitting Expert Credentials:", payload);
+
+            // 3. Axios POST Request to FastAPI Node
+            const response = await axios.post('http://localhost:8000/counselor/register', payload, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.data.status === "success") {
+                alert("Success! Welcome to the Manobal Elite Expert Network.");
+                navigate('/login');
+            }
         } catch (err) {
-            console.error(err);
-            alert("Registration failed. Please check your professional credentials.");
+            // 4. Robust Error Handling (Catches 400/404/Network errors)
+            if (err.response) {
+                console.error("Backend Rejection:", err.response.data);
+                alert(`Registration failed: ${err.response.data.detail || "Validation Error"}`);
+            } else {
+                alert("Network Error: Please ensure your FastAPI server is active.");
+            }
         }
     };
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white p-8 flex flex-col items-center justify-center relative overflow-hidden font-sans">
-            
-            {/* 🌌 Background Glow Orbs (Blue & Gold Theme) */}
-            <div className="absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[150px] animate-pulse" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-yellow-500/5 rounded-full blur-[130px]" />
+        <div className="min-h-screen bg-[#030712] text-white p-8 flex flex-col items-center justify-center relative overflow-hidden font-sans">
+            {/* Neural Aesthetic Background */}
+            <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-yellow-500/10 rounded-full blur-[100px]" />
 
-            <div className="max-w-3xl w-full relative z-10">
-                <header className="mb-14 text-center">
-                    <h1 className="text-6xl lg:text-8xl font-black tracking-tighter uppercase italic text-white leading-none">
-                        Expert <br /> <span className="text-[#FFD700] drop-shadow-[0_0_20px_rgba(255,215,0,0.3)]">Onboarding</span>
+            <div className="max-w-4xl w-full relative z-10">
+                <header className="mb-12 text-center">
+                    <h1 className="text-7xl lg:text-9xl font-black tracking-tighter uppercase italic text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 leading-none">
+                        Expert <br /> <span className="text-[#FFD700] drop-shadow-[0_0_30px_rgba(255,215,0,0.4)]">Registry</span>
                     </h1>
-                    <p className="text-blue-400/50 font-black italic mt-6 uppercase tracking-[0.4em] text-[10px]">Join our specialized neural resilience network</p>
+                    <p className="text-blue-400 font-bold italic mt-4 uppercase tracking-[0.5em] text-[12px]">Neural Resilience Infrastructure</p>
                 </header>
 
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-blue-950/20 backdrop-blur-3xl p-12 rounded-[4rem] border border-blue-500/10 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-8 relative group hover:border-[#FFD700]/20 transition-all duration-700"
+                    className="bg-gray-900/40 backdrop-blur-2xl p-10 rounded-[3rem] border border-white/5 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-6 hover:border-yellow-500/20 transition-all duration-500"
                 >
                     <div className="md:col-span-2">
-                         <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 mb-3 block ml-4">Professional Identity</label>
-                         <input
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-2 block ml-2">Professional Identity</label>
+                        <input
                             type="text"
-                            placeholder="Full Name (e.g. Dr. Vighnesh P.)"
+                            placeholder="Full Name (e.g. Dr. Aryan Khan)"
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none text-white"
                             value={counselor.name}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 focus:border-[#FFD700]/50 transition-all outline-none text-white placeholder-blue-300/20"
                             onChange={(e) => handleChange("name", e.target.value)}
                             required
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Expert Email</label>
+                    <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 ml-2">Secure Email</label>
                         <input
                             type="email"
-                            placeholder="professional@manobal.com"
+                            placeholder="expert@manobal.org"
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none"
                             value={counselor.email}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 focus:border-[#FFD700]/50 transition-all outline-none text-white"
                             onChange={(e) => handleChange("email", e.target.value)}
                             required
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Credential Key</label>
+                    <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 ml-2">Credential Key</label>
                         <input
                             type="password"
                             placeholder="••••••••"
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none"
                             value={counselor.password}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 focus:border-[#FFD700]/50 transition-all outline-none text-white"
                             onChange={(e) => handleChange("password", e.target.value)}
                             required
                         />
                     </div>
 
-                    <div className="md:col-span-2 h-[1px] bg-blue-500/10 my-4" />
-
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Clinical Focus</label>
+                    <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 ml-2">Clinical Focus</label>
                         <input
                             type="text"
-                            placeholder="Specialization (e.g. CBT)"
+                            placeholder="e.g. CBT Specialist"
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none"
                             value={counselor.specialization}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 focus:border-[#FFD700]/50 transition-all outline-none text-white"
                             onChange={(e) => handleChange("specialization", e.target.value)}
                             required
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Tenure</label>
+                    <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 ml-2">Tenure</label>
                         <input
                             type="text"
-                            placeholder="Experience (e.g. 10+ Years)"
+                            placeholder="e.g. 5+ Years"
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none"
                             value={counselor.experience}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 focus:border-[#FFD700]/50 transition-all outline-none text-white"
                             onChange={(e) => handleChange("experience", e.target.value)}
                             required
                         />
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Available From</label>
+                    <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 ml-2">Available From</label>
                         <input
                             type="time"
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none text-white"
                             value={counselor.available_from}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 text-white focus:border-[#FFD700]/50 outline-none"
                             onChange={(e) => handleChange("available_from", e.target.value)}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Available To</label>
+                    <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 ml-2">Available To</label>
                         <input
                             type="time"
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none text-white"
                             value={counselor.available_to}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 text-white focus:border-[#FFD700]/50 outline-none"
                             onChange={(e) => handleChange("available_to", e.target.value)}
                         />
                     </div>
 
-                    <div className="md:col-span-2 space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/70 ml-4">Tele-Health Node (Link)</label>
+                    <div className="md:col-span-2 space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 ml-2">Tele-Health Node (Link)</label>
                         <input
                             type="url"
-                            placeholder="Zoom / Meet Professional Link"
+                            placeholder="https://zoom.us/j/..."
+                            className="w-full p-5 bg-white/5 rounded-2xl border border-white/10 focus:border-[#FFD700] transition-all outline-none"
                             value={counselor.meeting_link}
-                            className="w-full p-6 bg-blue-900/10 rounded-2xl border border-blue-500/10 focus:border-[#FFD700]/50 transition-all outline-none text-white"
                             onChange={(e) => handleChange("meeting_link", e.target.value)}
                             required
                         />
@@ -146,7 +172,7 @@ const CounselorReg = () => {
 
                     <button
                         type="submit"
-                        className="md:col-span-2 mt-6 bg-[#FFD700] text-[#020617] p-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
+                        className="md:col-span-2 mt-4 bg-[#FFD700] text-black p-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-[1.03] transition-all active:scale-95 shadow-xl shadow-yellow-500/10"
                     >
                         Initialize Expert Profile &rarr;
                     </button>
