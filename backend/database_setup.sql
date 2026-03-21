@@ -1,18 +1,12 @@
--- =============================================
--- 🛡️ MANOBAL DATABASE: FINAL AUTHORITATIVE SYNC
--- =============================================
+--  MANOBAL DATABASE
 SET FOREIGN_KEY_CHECKS = 0;
-
--- Purani tables ko drop karein taaki schema fresh ho jaye
 DROP TABLE IF EXISTS access_tokens;
 DROP TABLE IF EXISTS streaks;
 DROP TABLE IF EXISTS mood_entries;
 DROP TABLE IF EXISTS counselors;
 DROP TABLE IF EXISTS users;
-
 SET FOREIGN_KEY_CHECKS = 1;
-
--- 1. USERS: Client identity storage
+-- 1. USERS
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
@@ -20,13 +14,12 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- 2. COUNSELORS: Exact match for CounselorReg.jsx & main.py
+-- 2. COUNSELORS
 CREATE TABLE counselors (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,  -- 🔥 Fixed: Matches 'email' in backend
-    password VARCHAR(255) NOT NULL,      -- 🔥 Fixed: Matches 'password' in backend
+    email VARCHAR(255) NOT NULL UNIQUE,  
+    password VARCHAR(255) NOT NULL,      
     specialization VARCHAR(255) DEFAULT 'Mental Health Expert',
     experience VARCHAR(100) DEFAULT 'Professional',
     available_from VARCHAR(50),
@@ -34,8 +27,7 @@ CREATE TABLE counselors (
     meeting_link VARCHAR(500),
     image_url VARCHAR(500) NULL
 );
-
--- 3. MOOD ENTRIES: Neural log history
+-- 3. MOOD ENTRIES
 CREATE TABLE mood_entries (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -45,8 +37,7 @@ CREATE TABLE mood_entries (
     entry_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
--- 4. STREAKS: Dashboard sync logic
+-- 4. STREAKS
 CREATE TABLE streaks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
@@ -54,8 +45,7 @@ CREATE TABLE streaks (
     last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
--- 5. ACCESS TOKENS: Professional sharing node
+-- 5. ACCESS TOKENS
 CREATE TABLE access_tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,

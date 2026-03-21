@@ -31,7 +31,7 @@ const Layout = () => {
                     <div className="flex items-center gap-3">
                         <div className="h-px w-8 bg-blue-500/20" />
                         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-400/40 italic">
-                            MANABAL NEURAL SYSTEM <span className="text-[#FFD700]">v1.0</span>
+                            MANOBAL NEURAL SYSTEM <span className="text-[#FFD700]">v1.0</span>
                         </p>
                         <div className="h-px w-8 bg-blue-500/20" />
                     </div>

@@ -61,7 +61,7 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-[#020617] text-white p-6 lg:p-12 relative overflow-x-hidden font-sans">
-            {/* 🌌 Background Aesthetic Glows */}
+            {/*  Background Aesthetic Glows */}
             <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[150px] animate-pulse" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-yellow-500/5 rounded-full blur-[130px]" />
 
@@ -77,7 +77,7 @@ const Dashboard = () => {
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                    {/* 🛡️ LEFT COLUMN: STREAK & LOGS */}
+                    {/*  LEFT COLUMN: STREAK & LOGS */}
                     <div className="lg:col-span-5 space-y-12">
                         <div className="bg-gradient-to-br from-[#FFD700] to-[#B8860B] p-12 rounded-[4rem] transform transition hover:scale-[1.02] cursor-pointer shadow-2xl relative group overflow-hidden" onClick={() => navigate('/aid')}>
                              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -110,7 +110,7 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* 🏮 RIGHT COLUMN: FEATURE GRID */}
+                    {/*  RIGHT COLUMN: FEATURE GRID */}
                     <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-8">
                         {features.map((f) => (
                             <div key={f.title} onClick={() => navigate(f.link)} className="p-10 rounded-[4rem] bg-blue-900/10 border border-blue-500/10 hover:border-[#FFD700]/40 transition-all duration-500 cursor-pointer group flex flex-col justify-between min-h-[260px] shadow-2xl backdrop-blur-3xl relative overflow-hidden">

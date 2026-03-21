@@ -20,14 +20,14 @@ const Navbar = ({ username }) => {
         <nav className="bg-[#020617]/40 backdrop-blur-2xl border-b border-blue-500/10 p-5 sticky top-0 z-[100] transition-all duration-500 shadow-2xl">
             <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
 
-                {/* 🏮 Brand Logo - Glowing Gold */}
+                {/*  Brand Logo - Glowing Gold */}
                 <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center group">
                     <span className="text-3xl font-black tracking-tighter uppercase italic group-hover:scale-105 transition-all duration-300">
                         MANO<span className="text-[#FFD700] drop-shadow-[0_0_15px_rgba(255,215,0,0.4)]">BAL</span>
                     </span>
                 </Link>
 
-                {/* 🛰️ Desktop Navigation */}
+                {/*  Desktop Navigation */}
                 {isAuthenticated && (
                     <div className="hidden lg:flex items-center space-x-10 text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/50">
                         <Link to="/dashboard" className="hover:text-white transition-colors">Hub</Link>
@@ -39,7 +39,7 @@ const Navbar = ({ username }) => {
                     </div>
                 )}
 
-                {/* 👤 User Profile Node */}
+                {/*  User Profile Node */}
                 <div className="flex items-center space-x-8">
                     {isAuthenticated ? (
                         <>

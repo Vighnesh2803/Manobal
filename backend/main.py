@@ -11,9 +11,9 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from google import genai
 
-# =========================
+
 # ENV & GEMINI SETUP
-# =========================
+
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
@@ -33,9 +33,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================
+
 # DB CONFIG
-# =========================
+
 db_config = {
     "host": "127.0.0.1",
     "user": "root",
@@ -50,9 +50,8 @@ def get_db():
     finally:
         conn.close()
 
-# =========================
-# MODELS & SCHEMAS
-# =========================
+#  MODELS & SCHEMAS
+
 class UserCreate(BaseModel):
     username: str
     email: str
@@ -87,9 +86,9 @@ class AccessRequest(BaseModel):
     professional_name: str
     duration_hours: int
 
-# =========================
-# 🔑 AUTHENTICATION (Fixed 404 Issues)
-# =========================
+
+#  AUTHENTICATION 
+
 @app.post("/register")
 def register(user: UserCreate, db=Depends(get_db)):
     cursor = db.cursor()
@@ -114,9 +113,9 @@ def login(user: UserLogin, db=Depends(get_db)):
         return {"status": "success", "user_id": data["id"], "username": data["username"]}
     raise HTTPException(401, "Invalid login credentials")
 
-# =========================
-# 📊 MOODS, STREAKS & DASHBOARD
-# =========================
+
+#  MOODS, STREAKS & DASHBOARD
+
 @app.post("/moods")
 def add_mood(mood: MoodEntry, db=Depends(get_db)):
     cursor = db.cursor()
@@ -160,9 +159,8 @@ def dashboard_data(user_id: int, db=Depends(get_db)):
     cursor.close()
     return {"current_streak": row["streak_count"] if row else 0}
 
-# =========================
-# 🔥 AI FEATURES
-# =========================
+
+#  AI FEATURES
 @app.post("/ai/mood_rating")
 def get_ai_rating(req: ChatRequest):
     try:
@@ -188,17 +186,16 @@ def chatbot(req: ChatRequest):
     except Exception:
         return {"response": "I am listening closely."}
 
-# =========================
-# 🩺 COUNSELORS
-# =========================
+#  COUNSELORS
+
 @app.post("/counselor/register")
 def register_counselor(counselor: CounselorCreate, db=Depends(get_db)):
     cursor = db.cursor()
     try:
-        # Simple password hashing
+        
         hashed = bcrypt.hashpw(counselor.password.encode(), bcrypt.gensalt()).decode()
         
-        # 🔥 Column names synced with your simple database (email & password)
+        
         query = """
             INSERT INTO counselors 
             (name, email, password, specialization, experience, available_from, available_to, meeting_link)
@@ -220,7 +217,7 @@ def register_counselor(counselor: CounselorCreate, db=Depends(get_db)):
         return {"status": "success"}
     except Exception as e:
         db.rollback()
-        # 400 error catch karne ke liye
+        
         raise HTTPException(400, detail=str(e))
     finally: 
         cursor.close()
@@ -233,11 +230,11 @@ def get_counselors(db=Depends(get_db)):
     cursor.close()
     return data
 
-# =========================
-# 🔐 TRUSTED ACCESS: GENERATE TOKEN (Fixed 422 Error)
-# =========================
+
+# TRUSTED ACCESS: GENERATE TOKEN (Fixed 422 Error)
+
 @app.post("/access/generate")
-def generate_access_token(req: AccessRequest, db=Depends(get_db)): # 🔥 Changed to AccessRequest
+def generate_access_token(req: AccessRequest, db=Depends(get_db)): 
     cursor = db.cursor()
     try:
         # 1. Unique 8-character token generate karna
@@ -246,7 +243,7 @@ def generate_access_token(req: AccessRequest, db=Depends(get_db)): # 🔥 Change
         # 2. User ki pasand ke hours ke hisab se expiry set karna
         expiry_date = datetime.now() + timedelta(hours=req.duration_hours)
         
-        # 3. Database mein entry (Table columns ke sath sync)
+       
         query = """
             INSERT INTO access_tokens (user_id, access_token, professional_name, expires_at)
             VALUES (%s, %s, %s, %s)
@@ -264,9 +261,9 @@ def generate_access_token(req: AccessRequest, db=Depends(get_db)): # 🔥 Change
         raise HTTPException(400, detail=str(e))
     finally:
         cursor.close()
-# =========================
-# 🔥 NEW: REVOKE ACCESS
-# =========================
+
+#  NEW: REVOKE ACCESS
+
 @app.post("/access/revoke/{user_id}")
 def revoke_access(user_id: int, db=Depends(get_db)):
     cursor = db.cursor()
