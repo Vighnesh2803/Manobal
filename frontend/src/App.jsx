@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 /* ---------- Public Pages ---------- */
 import Login from './pages/login.jsx';
-import Register from './pages/Register.jsx';
+import Register from './pages/register.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 
 /* ---------- Protected Pages ---------- */
 import Dashboard from './pages/Dashboard.jsx';
-import Chatbot from './pages/Chatbot.jsx';
+import Chatbot from './pages/chatbot.jsx';
 import Helpline from './pages/Helpline.jsx';
 import Streaks from './pages/Streaks.jsx';
 import MoodLog from './pages/MoodLog.jsx';
