@@ -27,7 +27,10 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://manobal-ftp5.vercel.app" # Tera Vercel live link add kiya!
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -302,3 +305,19 @@ def view_access(token: str, db=Depends(get_db)):
     data = cursor.fetchall()
     cursor.close()
     return {"user_data_trends": data}
+
+#  DB CONFIG (Updated for Cloud Deployment)
+db_config = {
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
+    "port": int(os.getenv("DB_PORT", 26220)),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD", "vig2006"),
+    "database": os.getenv("DB_NAME", "suicide_awareness_db")
+}
+
+def get_db():
+    conn = mysql.connector.connect(**db_config)
+    try:
+        yield conn
+    finally:
+        conn.close()
